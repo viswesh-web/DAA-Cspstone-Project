@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Don't Forget to Pack</title>
+
+  <link rel="stylesheet" href="style.css" />
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="brand-icon">🎒</div>
+        <div>
+          <h1>Pack Optimizer</h1>
+          <p>3D Suitcase Planner</p>
+        </div>
+      </div>
+
+      <nav class="sidebar-nav">
+        <a href="#dashboard">Dashboard</a>
+        <a href="#suitcase">Suitcase</a>
+        <a href="#items">Items</a>
+        <a href="#results">Results</a>
+        <a href="#visuals">Visuals</a>
+        <a href="#history">History</a>
+      </nav>
+
+      <div class="sidebar-note">
+        <h3>Project Goal</h3>
+        <p>
+          Maximize total Need value while placing items inside a fixed suitcase
+          without overlap and without rotation.
+        </p>
+      </div>
+    </aside>
+
+    <main class="main-content">
+      <header class="topbar" id="dashboard">
+        <div>
+          <h2>Don’t Forget to Pack Up!</h2>
+          <p>Full-stack suitcase packing optimizer with charts, history, and 3D visualization.</p>
+        </div>
+        <div class="topbar-badge">FastAPI + MySQL + JS UI</div>
+      </header>
+
+      <section class="hero-panel">
+        <div class="hero-card">
+          <h3>Smart Packing</h3>
+          <p>Pack items based on dimensions and Need value.</p>
+        </div>
+        <div class="hero-card">
+          <h3>3D Coordinates</h3>
+          <p>See exact start and end coordinates for every packed item.</p>
+        </div>
+        <div class="hero-card">
+          <h3>Visual Analytics</h3>
+          <p>Inspect volume usage, Need priority, and layered placement.</p>
+        </div>
+      </section>
+
+      <section class="panel" id="suitcase">
+        <div class="panel-header">
+          <h3>Suitcase Dimensions</h3>
+        </div>
+
+        <div class="form-grid three">
+          <div class="field">
+            <label for="suitcaseWidth">Width</label>
+            <input type="number" id="suitcaseWidth" min="1" value="10" />
+          </div>
+          <div class="field">
+            <label for="suitcaseBreadth">Breadth</label>
+            <input type="number" id="suitcaseBreadth" min="1" value="8" />
+          </div>
+          <div class="field">
+            <label for="suitcaseHeight">Height</label>
+            <input type="number" id="suitcaseHeight" min="1" value="6" />
+          </div>
+        </div>
+      </section>
+
+      <section class="panel" id="items">
+        <div class="panel-header">
+          <h3>Add Item</h3>
+          <p>Enter item dimensions and Need value.</p>
+        </div>
+
+        <div class="form-grid five">
+          <div class="field">
+            <label for="itemName">Item Name</label>
+            <input type="text" id="itemName" placeholder="Laptop" />
+          </div>
+          <div class="field">
+            <label for="itemWidth">Width</label>
+            <input type="number" id="itemWidth" min="1" />
+          </div>
+          <div class="field">
+            <label for="itemBreadth">Breadth</label>
+            <input type="number" id="itemBreadth" min="1" />
+          </div>
+          <div class="field">
+            <label for="itemHeight">Height</label>
+            <input type="number" id="itemHeight" min="1" />
+          </div>
+          <div class="field">
+            <label for="itemNeed">Need</label>
+            <input type="number" id="itemNeed" min="1" />
+          </div>
+        </div>
+
+        <div class="action-row">
+          <button id="addItemBtn">Add Item</button>
+          <button id="loadSampleBtn" class="btn-secondary">Load Sample</button>
+          <button id="clearItemsBtn" class="btn-danger">Clear Items</button>
+          <button id="optimizeBtn" class="btn-success">Optimize Packing</button>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-header">
+          <h3>Item List</h3>
+        </div>
+
+        <div class="table-wrap">
+          <table id="itemsTable">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Width</th>
+                <th>Breadth</th>
+                <th>Height</th>
+                <th>Need</th>
+                <th>Volume</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="stats-grid" id="results">
+        <div class="stat-card">
+          <span>Total Need</span>
+          <strong id="statTotalNeed">0</strong>
+        </div>
+        <div class="stat-card">
+          <span>Packed Items</span>
+          <strong id="statPackedCount">0</strong>
+        </div>
+        <div class="stat-card">
+          <span>Unpacked Items</span>
+          <strong id="statUnpackedCount">0</strong>
+        </div>
+        <div class="stat-card">
+          <span>Used Volume</span>
+          <strong id="statUsedVolume">0</strong>
+        </div>
+        <div class="stat-card">
+          <span>Usage %</span>
+          <strong id="statUsagePercent">0%</strong>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-header">
+          <h3>Optimization Output</h3>
+        </div>
+        <div id="resultArea" class="result-area">
+          <p class="muted">No optimization result yet.</p>
+        </div>
+      </section>
+
+      <section class="panel" id="visuals">
+        <div class="panel-header">
+          <h3>Analytics</h3>
+        </div>
+
+        <div class="visual-grid">
+          <div class="chart-card">
+            <h4>Packed Item Need Values</h4>
+            <canvas id="needChart"></canvas>
+          </div>
+          <div class="chart-card">
+            <h4>Suitcase Volume Usage</h4>
+            <canvas id="volumeChart"></canvas>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-header">
+          <h3>2D Layer Visualization</h3>
+        </div>
+
+        <div class="layer-controls">
+          <div class="field small-field">
+            <label for="layerSelect">Select Layer (z)</label>
+            <select id="layerSelect"></select>
+          </div>
+        </div>
+
+        <canvas id="packingCanvas" width="1000" height="460"></canvas>
+        <p class="canvas-note">
+          This shows a top view of the suitcase for the selected height layer.
+        </p>
+      </section>
+
+      <section class="panel">
+        <div class="panel-header">
+          <h3>3D Suitcase Visualization</h3>
+        </div>
+        <div id="threeContainer"></div>
+      </section>
+
+      <section class="panel" id="history">
+        <div class="panel-header">
+          <h3>Optimization History</h3>
+          <button id="refreshHistoryBtn" class="btn-secondary">Refresh History</button>
+        </div>
+        <div id="historyArea">
+          <p class="muted">No history loaded yet.</p>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
